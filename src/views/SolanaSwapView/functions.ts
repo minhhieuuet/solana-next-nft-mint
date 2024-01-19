@@ -62,7 +62,6 @@ export const mint = async ({
   } catch (err) {
     user_storage_data = null;
   }
-  debugger
   // random my refcode with 5 char length
   let my_ref_code = Math.random().toString(36).substring(2, 7);
   const mint_amount = amount;
@@ -105,10 +104,17 @@ export const mint = async ({
   } catch (err) {
     user_token_x_ata = null;
   }
-  if (!user_token_x_ata) {
+  let balance: any;
+  try {
+    balance = await connection.getTokenAccountBalance(user_token_x_ata);
+  } catch(err) {
+    balance = null
+  }
+  if (!balance || balance.value.amount == 0) {
     alert("balance is 0")
     return
   }
+  console.log(`User balance ` + balance.value.amount)
 
   const refCodeAccountData = await program.account.refCode.fetch(
     base_referral_ref_code_account_pda
@@ -212,7 +218,7 @@ export const claim = async ({
     },
     signers: [],
   });
-   const tx = new Transaction().add(ix);
+  const tx = new Transaction().add(ix);
   tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
   tx.feePayer = wallet.publicKey;
   const signedTx = await wallet.signTransaction(tx);
