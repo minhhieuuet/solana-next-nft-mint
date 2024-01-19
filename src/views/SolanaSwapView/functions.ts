@@ -3,14 +3,16 @@ import * as spl from '@solana/spl-token';
 import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { env } from "./data";
 const tokenMint = new anchor.web3.PublicKey(env.swap_token);
-import { Keypair, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Keypair, PublicKey, LAMPORTS_PER_SOL, Transaction } from "@solana/web3.js";
 
 
 interface PDAParam {
   key: anchor.web3.PublicKey,
   bump: number
 }
+const endpoint = "https://explorer-api.devnet.solana.com";
 
+const connection = new anchor.web3.Connection(endpoint);
 const getAtaAccount = async (wallet: anchor.web3.PublicKey): Promise<anchor.web3.PublicKey> => {
 
   let userAssociatedTokenAccount = getAssociatedTokenAddressSync(
@@ -45,6 +47,7 @@ export const mint = async ({
   const token_x_mint = new PublicKey(
     "Y5d4m2u3spAE5cgfT3RYbjozTSR4MVTMsAnPiQH7USZ"
   );
+
 
   const [user_storage_pda] = await PublicKey.findProgramAddress(
     [Buffer.from("user_storage"), wallet.publicKey.toBuffer()],
@@ -120,21 +123,21 @@ export const mint = async ({
     refCodeAccountData.owner
   );
   console.log({
-      tokenX: token_x_mint,
-      signer: wallet.publicKey,
-      userStorage: user_storage_pda,
-      vaultX: vault_x_pda,
-      senderTokenX: user_token_x_ata,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      config: config_pda,
-      referralRefCodeAccount: base_referral_ref_code_account_pda,
-      myRefCodeAccount: my_referral_code_account_pda,
-      referrerTokenX: referrer_token_x_ata,
-      systemProgram: anchor.web3.SystemProgram.programId,
-      associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
-      rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-    })
-  await program.rpc.mintNft(mint_amount, mint_type, referrer_code, my_ref_code, {
+    tokenX: token_x_mint,
+    signer: wallet.publicKey,
+    userStorage: user_storage_pda,
+    vaultX: vault_x_pda,
+    senderTokenX: user_token_x_ata,
+    tokenProgram: TOKEN_PROGRAM_ID,
+    config: config_pda,
+    referralRefCodeAccount: base_referral_ref_code_account_pda,
+    myRefCodeAccount: my_referral_code_account_pda,
+    referrerTokenX: referrer_token_x_ata,
+    systemProgram: anchor.web3.SystemProgram.programId,
+    associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+  })
+  let ix = await program.instruction.mintNft(mint_amount, mint_type, referrer_code, my_ref_code, {
     accounts: {
       tokenX: token_x_mint,
       signer: wallet.publicKey,
@@ -152,6 +155,14 @@ export const mint = async ({
     },
     signers: [],
   });
+  const tx = new Transaction().add(ix);
+  tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  tx.feePayer = wallet.publicKey;
+  const signedTx = await wallet.signTransaction(tx);
+  const txId = await connection.sendRawTransaction(signedTx.serialize());
+  await connection.confirmTransaction(txId);
+  console.log("Tx Id: " + `https://solscan.io/tx/${txId}?cluster=devnet`);
+
 };
 
 export const claim = async ({
