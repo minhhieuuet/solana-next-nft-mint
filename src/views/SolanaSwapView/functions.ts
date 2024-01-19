@@ -162,7 +162,7 @@ export const mint = async ({
   const txId = await connection.sendRawTransaction(signedTx.serialize());
   await connection.confirmTransaction(txId);
   console.log("Tx Id: " + `https://solscan.io/tx/${txId}?cluster=devnet`);
-
+  alert("Mint success")
 };
 
 export const claim = async ({
@@ -197,7 +197,7 @@ export const claim = async ({
     wallet.publicKey
   );
 
-  await program.rpc.claimReward({
+  let ix = await program.instruction.claimReward({
     accounts: {
       tokenX: token_x_mint,
       signer: wallet.publicKey,
@@ -212,6 +212,14 @@ export const claim = async ({
     },
     signers: [],
   });
+   const tx = new Transaction().add(ix);
+  tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  tx.feePayer = wallet.publicKey;
+  const signedTx = await wallet.signTransaction(tx);
+  const txId = await connection.sendRawTransaction(signedTx.serialize());
+  await connection.confirmTransaction(txId);
+  console.log("Tx Id: " + `https://solscan.io/tx/${txId}?cluster=devnet`);
+  alert("Claim success")
 
 };
 

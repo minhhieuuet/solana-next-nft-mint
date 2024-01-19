@@ -116,6 +116,9 @@ const SwapScreen = () => {
           <p>
             {JSON.stringify(userData)}
           </p>
+          <p>
+            {"balances: " + JSON.stringify(userData?.nftBalances.map(el => el.toString()))}
+          </p>
         </div>
         <div className="text-xs">
           <NetSwap onSwapSent={onSwapSent} />
