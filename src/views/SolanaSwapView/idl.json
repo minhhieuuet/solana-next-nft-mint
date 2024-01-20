@@ -31,6 +31,11 @@
           "isSigner": false
         },
         {
+          "name": "baseUserStorage",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -70,41 +75,6 @@
           "name": "config",
           "isMut": true,
           "isSigner": false
-        },
-        {
-          "name": "vaultX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenX",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "baseRefCodeAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": []
@@ -120,41 +90,6 @@
         {
           "name": "config",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "vaultX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenX",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "baseRefCodeAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -185,41 +120,6 @@
           "name": "config",
           "isMut": true,
           "isSigner": false
-        },
-        {
-          "name": "vaultX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenX",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "baseRefCodeAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
@@ -249,6 +149,30 @@
           "name": "config",
           "isMut": true,
           "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "refPercentage",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "emergencyWithdraw",
+      "docs": [
+        "TODO: Add emergency withdraw from vault"
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "vaultX",
@@ -256,13 +180,13 @@
           "isSigner": false
         },
         {
-          "name": "tokenX",
-          "isMut": false,
+          "name": "receiverTokenX",
+          "isMut": true,
           "isSigner": false
         },
         {
-          "name": "baseRefCodeAccount",
-          "isMut": true,
+          "name": "tokenX",
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -288,7 +212,7 @@
       ],
       "args": [
         {
-          "name": "refPercentage",
+          "name": "amount",
           "type": "u64"
         }
       ]
@@ -308,6 +232,11 @@
         },
         {
           "name": "userStorage",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "referrerStorage",
           "isMut": true,
           "isSigner": false
         },
@@ -338,11 +267,6 @@
         },
         {
           "name": "senderTokenX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "referrerTokenX",
           "isMut": true,
           "isSigner": false
         },
@@ -380,6 +304,57 @@
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "claimRefReward",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "userStorage",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenX",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultX",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "receiverTokenX",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "claimReward",
@@ -445,6 +420,10 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
             "name": "lastClaimAt",
             "type": "i64"
           },
@@ -465,6 +444,10 @@
             "type": {
               "vec": "u64"
             }
+          },
+          {
+            "name": "pendingRefClaim",
+            "type": "u64"
           }
         ]
       }
@@ -594,6 +577,6 @@
     }
   ],
   "metadata": {
-    "address": "9s2BtBsF2xzLC1amYppJFpDeU6MNcfJK7SPeczsN4JvC"
+    "address": "D8k75A95PeoZfpLVPfXWQ7EffGYPhndCgZqz1So67qNt"
   }
 }

@@ -10,7 +10,7 @@ import * as anchor from "@project-serum/anchor";
 
 import { SolanaLogo } from "components";
 import styles from "./index.module.css";
-import { mint, getCurrentInterest, claim, getUserData } from "./functions";
+import { mint, getCurrentInterest, claim, getUserData, claimRef } from "./functions";
 import { useProgram } from "./useProgram";
 
 const endpoint = "https://explorer-api.devnet.solana.com";
@@ -174,6 +174,15 @@ const NetSwap: FC<NetSwap> = ({ onSwapSent }) => {
     });
   };
 
+   const onClaimRefClick = async () => {
+    if (!program) return;
+
+    const claim_result = await claimRef({
+      program,
+      wallet
+    });
+  };
+
   console.log(value)
   function isNumeric(value: any) {
     return /^[0-9]{0,9}(\.[0-9]{1,2})?$/.test(value);
@@ -212,6 +221,15 @@ const NetSwap: FC<NetSwap> = ({ onSwapSent }) => {
           style={{ minHeight: 0, height: 40 }}
         >
           Claim
+        </button>
+        <br />
+        <br />
+        <button
+          className="btn btn-primary rounded-full normal-case	w-full"
+          onClick={onClaimRefClick}
+          style={{ minHeight: 0, height: 40 }}
+        >
+          Claim Ref
         </button>
       </div>
     </div>

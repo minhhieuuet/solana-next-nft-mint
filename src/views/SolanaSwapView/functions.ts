@@ -32,6 +32,7 @@ export const getUserData = async ({ program, wallet }) => {
     user_storage_data = await program.account.userStorage.fetch(
       user_storage_pda
     );
+    user_storage_data.pendingRefClaim = user_storage_data.pendingRefClaim.toString();
   } catch (err) {
     user_storage_data = null;
   }
@@ -124,25 +125,15 @@ export const mint = async ({
     program.programId
   );
 
+  const [referrer_storage_pda] = await PublicKey.findProgramAddress(
+      [Buffer.from("user_storage"), refCodeAccountData.owner.toBuffer()],
+      program.programId
+    );
+
   const referrer_token_x_ata = getAssociatedTokenAddressSync(
     token_x_mint,
     refCodeAccountData.owner
   );
-  console.log({
-    tokenX: token_x_mint,
-    signer: wallet.publicKey,
-    userStorage: user_storage_pda,
-    vaultX: vault_x_pda,
-    senderTokenX: user_token_x_ata,
-    tokenProgram: TOKEN_PROGRAM_ID,
-    config: config_pda,
-    referralRefCodeAccount: base_referral_ref_code_account_pda,
-    myRefCodeAccount: my_referral_code_account_pda,
-    referrerTokenX: referrer_token_x_ata,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  })
   let ix = await program.instruction.mintNft(mint_amount, mint_type, referrer_code, my_ref_code, {
     accounts: {
       tokenX: token_x_mint,
@@ -154,10 +145,10 @@ export const mint = async ({
       config: config_pda,
       referralRefCodeAccount: base_referral_ref_code_account_pda,
       myRefCodeAccount: my_referral_code_account_pda,
-      referrerTokenX: referrer_token_x_ata,
       systemProgram: anchor.web3.SystemProgram.programId,
       associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
       rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      referrerStorage: referrer_storage_pda,
     },
     signers: [],
   });
@@ -204,6 +195,64 @@ export const claim = async ({
   );
 
   let ix = await program.instruction.claimReward({
+    accounts: {
+      tokenX: token_x_mint,
+      signer: wallet.publicKey,
+      userStorage: user_storage_pda,
+      vaultX: vault_x_pda,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      config: config_pda,
+      receiverTokenX: user_token_x_ata,
+      systemProgram: anchor.web3.SystemProgram.programId,
+      associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+      rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+    },
+    signers: [],
+  });
+  const tx = new Transaction().add(ix);
+  tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  tx.feePayer = wallet.publicKey;
+  const signedTx = await wallet.signTransaction(tx);
+  const txId = await connection.sendRawTransaction(signedTx.serialize());
+  await connection.confirmTransaction(txId);
+  console.log("Tx Id: " + `https://solscan.io/tx/${txId}?cluster=devnet`);
+  alert("Claim success")
+
+};
+
+export const claimRef = async ({
+  program,
+  wallet,
+}) => {
+  const token_x_mint = new PublicKey(
+    "Y5d4m2u3spAE5cgfT3RYbjozTSR4MVTMsAnPiQH7USZ"
+  );
+
+  const [user_storage_pda] = await PublicKey.findProgramAddress(
+    [Buffer.from("user_storage"), wallet.publicKey.toBuffer()],
+    program.programId
+  );
+
+  const user_storage_data = await program.account.userStorage.fetch(
+    user_storage_pda
+  );
+
+  const [config_pda, _] = await PublicKey.findProgramAddress(
+    [Buffer.from("config")],
+    program.programId
+  );
+
+  const [vault_x_pda] = await anchor.web3.PublicKey.findProgramAddress(
+    [Buffer.from("vault"), token_x_mint.toBuffer()],
+    program.programId
+  );
+
+  const user_token_x_ata = getAssociatedTokenAddressSync(
+    token_x_mint,
+    wallet.publicKey
+  );
+
+  let ix = await program.instruction.claimRefReward({
     accounts: {
       tokenX: token_x_mint,
       signer: wallet.publicKey,
