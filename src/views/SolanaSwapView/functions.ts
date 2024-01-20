@@ -64,7 +64,7 @@ export const mint = async ({
     user_storage_data = null;
   }
   // random my refcode with 5 char length
-  let my_ref_code = Math.random().toString(36).substring(2, 7);
+  let my_ref_code = Math.random().toString(36).substring(2, 7).toUpperCase();
   const mint_amount = amount;
   const mint_type = new anchor.BN(1);
   if (user_storage_data && user_storage_data.refCode != "") {
